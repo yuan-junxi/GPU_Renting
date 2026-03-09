@@ -12,6 +12,7 @@ import java.util.Map;
 /**
  * 全新设计的GPU租赁系统登录注册界面
  * 特点：布局清晰、交互友好、校验完善、代码健壮
+ * 新增：注册模块添加手机号字段
  */
 public class LoginFrame extends JFrame {
     // 模拟用户数据库（线程安全的HashMap）
@@ -21,16 +22,16 @@ public class LoginFrame extends JFrame {
     private JTextField tfLoginUsername;
     private JPasswordField pfLoginPassword;
 
-    // 注册模块组件
+    // 注册模块组件（新增手机号输入框）
     private JTextField tfRegUsername;
     private JPasswordField pfRegPassword;
     private JPasswordField pfRegConfirmPassword;
+    private JTextField tfRegPhone; // 新增：手机号输入框
 
     public LoginFrame() {
         // 初始化界面
         initGUI();
     }
-
 
     /**
      * 初始化图形界面（核心布局设计）
@@ -38,7 +39,7 @@ public class LoginFrame extends JFrame {
     private void initGUI() {
         // ========== 主窗口设置 ==========
         setTitle("GPU租赁管理系统 - 登录中心");
-        setSize(700, 500);          // 合适的窗口尺寸
+        setSize(700, 550);          // 调整窗口高度，适配新增的手机号字段
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null); // 屏幕居中
         setResizable(false);         // 固定窗口大小，避免布局错乱
@@ -141,17 +142,11 @@ public class LoginFrame extends JFrame {
     }
 
     /**
-     * 创建注册面板（独立模块）
-     */
-    /**
-     * 创建注册面板（独立模块）- 调整输入框大小
-     */
-    /**
-     * 创建注册面板（强制固定输入框尺寸，确保修改生效）
+     * 创建注册面板（独立模块）- 新增手机号字段
      */
     private JPanel createRegisterPanel() {
         // 主面板用绝对布局兜底，确保尺寸设置不失效
-        JPanel registerPanel = new JPanel(null); // 关键：改用null布局，完全手动控制尺寸
+        JPanel registerPanel = new JPanel(null);
         registerPanel.setBackground(Color.WHITE);
         registerPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
@@ -162,46 +157,56 @@ public class LoginFrame extends JFrame {
         JLabel regTitle = new JLabel("用户注册");
         regTitle.setFont(new Font("微软雅黑", Font.BOLD, 18));
         regTitle.setForeground(new Color(22, 160, 133));
-        regTitle.setBounds(120, 10, 150, 30); // x,y,宽,高 手动定位
+        regTitle.setBounds(120, 10, 150, 30);
 
-        // ========== 用户名输入框（强制大尺寸） ==========
+        // ========== 用户名输入框 ==========
         JLabel lblRegUsername = new JLabel("用户名：");
         lblRegUsername.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        lblRegUsername.setBounds(30, 60, 80, 40); // 标签位置
+        lblRegUsername.setBounds(30, 60, 80, 40);
 
         tfRegUsername = new JTextField();
         tfRegUsername.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        tfRegUsername.setBounds(110, 60, 180, 40); // 强制宽200，高40（比登录框更大）
+        tfRegUsername.setBounds(110, 60, 180, 40);
         tfRegUsername.setBorder(BorderFactory.createLineBorder(new Color(200,200,200)));
 
-        // ========== 密码输入框（强制大尺寸） ==========
+        // ========== 密码输入框 ==========
         JLabel lblRegPassword = new JLabel("密　码：");
         lblRegPassword.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         lblRegPassword.setBounds(30, 110, 80, 40);
 
         pfRegPassword = new JPasswordField();
         pfRegPassword.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        pfRegPassword.setBounds(110, 110, 180, 40); // 宽200，高40
+        pfRegPassword.setBounds(110, 110, 180, 40);
         pfRegPassword.setBorder(BorderFactory.createLineBorder(new Color(200,200,200)));
 
-        // ========== 确认密码输入框（强制大尺寸） ==========
+        // ========== 确认密码输入框 ==========
         JLabel lblRegConfirm = new JLabel("确认密码：");
         lblRegConfirm.setFont(new Font("微软雅黑", Font.PLAIN, 14));
         lblRegConfirm.setBounds(30, 160, 80, 40);
 
         pfRegConfirmPassword = new JPasswordField();
         pfRegConfirmPassword.setFont(new Font("微软雅黑", Font.PLAIN, 14));
-        pfRegConfirmPassword.setBounds(110, 160, 180, 40); // 宽200，高40
+        pfRegConfirmPassword.setBounds(110, 160, 180, 40);
         pfRegConfirmPassword.setBorder(BorderFactory.createLineBorder(new Color(200,200,200)));
 
-        // ========== 注册按钮 ==========
+        // ========== 新增：手机号输入框 ==========
+        JLabel lblRegPhone = new JLabel("手机号：");
+        lblRegPhone.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        lblRegPhone.setBounds(30, 210, 80, 40);
+
+        tfRegPhone = new JTextField();
+        tfRegPhone.setFont(new Font("微软雅黑", Font.PLAIN, 14));
+        tfRegPhone.setBounds(110, 210, 180, 40);
+        tfRegPhone.setBorder(BorderFactory.createLineBorder(new Color(200,200,200)));
+
+        // ========== 注册按钮（调整位置适配手机号字段） ==========
         JButton btnRegister = new JButton("注 册");
         btnRegister.setFont(new Font("微软雅黑", Font.BOLD, 14));
         btnRegister.setBackground(new Color(22, 160, 133));
         btnRegister.setForeground(Color.WHITE);
         btnRegister.setBorderPainted(false);
         btnRegister.setFocusPainted(false);
-        btnRegister.setBounds(80, 220, 200, 45); // 按钮宽200，高45
+        btnRegister.setBounds(80, 270, 200, 45); // 向下调整按钮位置
         btnRegister.addActionListener(new RegisterActionHandler());
 
         // ========== 添加所有组件 ==========
@@ -212,6 +217,8 @@ public class LoginFrame extends JFrame {
         registerPanel.add(pfRegPassword);
         registerPanel.add(lblRegConfirm);
         registerPanel.add(pfRegConfirmPassword);
+        registerPanel.add(lblRegPhone);       // 新增：添加手机号标签
+        registerPanel.add(tfRegPhone);        // 新增：添加手机号输入框
         registerPanel.add(btnRegister);
 
         return registerPanel;
@@ -249,8 +256,6 @@ public class LoginFrame extends JFrame {
                 return;
             }
 
-            //TODO 查数据库有无该用户
-
             // 2. 用户名存在性校验
             if (status==2) {
                 JOptionPane.showMessageDialog(LoginFrame.this,
@@ -283,18 +288,39 @@ public class LoginFrame extends JFrame {
     }
 
     /**
-     * 注册事件处理器（独立类，解耦）
+     * 注册事件处理器（独立类，解耦）- 新增手机号参数传递
      */
     private class RegisterActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            // 获取输入值
+            // 获取输入值（新增手机号）
             String username = tfRegUsername.getText().trim();
             String password = new String(pfRegPassword.getPassword()).trim();
             String confirmPwd = new String(pfRegConfirmPassword.getPassword()).trim();
+            String phone = tfRegPhone.getText().trim(); // 新增：获取手机号
+
+            System.out.println("username:"+username+"password:"+password+"confirmPwd:"+confirmPwd+"phone:"+phone);
+
+            // 新增：手机号非空校验（可选，根据业务需求调整）
+            if (phone.isEmpty()) {
+                JOptionPane.showMessageDialog(LoginFrame.this,
+                        "请输入手机号！", "错误", JOptionPane.ERROR_MESSAGE);
+                tfRegPhone.requestFocus(); // 光标定位到手机号输入框
+                return;
+            }
+
+            // 新增：手机号格式简单校验（可选）
+            if (!phone.matches("^1[3-9]\\d{9}$")) {
+                JOptionPane.showMessageDialog(LoginFrame.this,
+                        "请输入正确的手机号格式！", "错误", JOptionPane.ERROR_MESSAGE);
+                tfRegPhone.selectAll(); // 全选错误手机号
+                tfRegPhone.requestFocus();
+                return;
+            }
 
             UserService userService = new UserService();
-            int status=userService.register(username, password, confirmPwd);
+            // 新增：传递手机号参数到Service层（需同步修改UserService的register方法）
+            int status=userService.register(username, password, confirmPwd, phone);
 
             // 1. 空值校验
             if (status==1) {
@@ -302,7 +328,6 @@ public class LoginFrame extends JFrame {
                         "请输入用户名！", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
 
             // 2. 密码一致性校验
             if (status==2) {
@@ -326,10 +351,11 @@ public class LoginFrame extends JFrame {
                         "成功", JOptionPane.INFORMATION_MESSAGE);
             }
 
-            // 清空注册表单
+            // 清空注册表单（新增清空手机号）
             tfRegUsername.setText("");
             pfRegPassword.setText("");
             pfRegConfirmPassword.setText("");
+            tfRegPhone.setText(""); // 新增：清空手机号输入框
         }
     }
 

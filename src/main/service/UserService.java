@@ -29,18 +29,16 @@ public class UserService {
             return 1;
         }
 
-        //TODO 查用户名是否存在
-
-        // 调用DAO查询
-        User user = userDao.findByUsernameAndPassword(username, password);
-
         // 2.用户名不存在
-        if (user == null) {
+        if (!userDao.isUsernameExists(username)) {
+            System.out.println(username + " already exists");
             return 2;
         }
 
+        User user=userDao.findByUsername(username);
+
         // 3.密码错误
-        if (user.getPassword() != password) {
+        if (!user.getPassword().equals(password)) {
             return 3;
         }
 
@@ -51,7 +49,14 @@ public class UserService {
      * 注册
      * @return 1成功，0失败，-1用户名已存在，-2参数无效
      */
-    public int register(String username, String password, String confirmPassword) {
+    public int register(String username, String password, String confirmPassword, String phone) {
+
+        /*
+         * 1.空值
+         * 2.验证两次密码是否一致
+         * 3.用户名是否唯一
+         * 4.注册成功
+         * */
 
         // 1.空值校验
         if(username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
@@ -63,18 +68,16 @@ public class UserService {
             return 2;
         }
 
-        //TODO 查用户名是否存在
-
         // 3. 用户名唯一性校验
-        if (userDao.existsByUsername(username)) {
+        if (userDao.isUsernameExists(username)) {
             return 3;
         }
 
         // 创建用户对象
-        User user = new User(username, password);
+        User user = new User(username, password, phone);
 
         // 插入数据库
-        userDao.insert(user);
+        userDao.insertUser(user);
 
         return 4;
     }

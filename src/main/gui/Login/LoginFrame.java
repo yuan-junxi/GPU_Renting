@@ -1,5 +1,7 @@
 package main.gui.Login;
 
+import main.gui.admin.AdminMainFrame;
+import main.gui.user.UserMainFrame;
 import main.service.UserService;
 
 import javax.swing.*;
@@ -273,17 +275,35 @@ public class LoginFrame extends JFrame {
             // 4.登录成功
             if (status==4) {
                 JOptionPane.showMessageDialog(LoginFrame.this,
-                        "登录成功！欢迎使用GPU租赁系统，" + username,
+                        "登录成功！欢迎管理员使用GPU租赁系统，" + username,
                         "成功", JOptionPane.INFORMATION_MESSAGE);
+                // 清空登录表单
+                tfLoginUsername.setText("");
+                pfLoginPassword.setText("");
+
+                // 登录成功后跳转到主界面
+                dispose(); // 关闭登录窗口
+                new AdminMainFrame(username).setVisible(true);; // 打开管理员主界面
+                return;
             }
+
+            JOptionPane.showMessageDialog(LoginFrame.this,
+                    "登录成功！欢迎用户使用GPU租赁系统，" + username,
+                    "成功", JOptionPane.INFORMATION_MESSAGE);
 
             // 清空登录表单
             tfLoginUsername.setText("");
             pfLoginPassword.setText("");
 
-            // 可选：登录成功后跳转到主界面（此处可扩展）
-            // dispose(); // 关闭登录窗口
-            // new MainFrame().setVisible(true); // 打开主界面
+            // 登录成功后跳转到主界面
+            dispose(); // 关闭登录窗口
+
+            new UserMainFrame(username).setVisible(true); // 打开用户主界面
+
+            JOptionPane.showMessageDialog(LoginFrame.this,
+                    "登录成功！欢迎管理员使用GPU租赁系统，" + username,
+                    "成功", JOptionPane.INFORMATION_MESSAGE);
+
         }
     }
 

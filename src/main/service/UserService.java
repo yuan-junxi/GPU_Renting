@@ -6,8 +6,11 @@ import main.gui.Login.LoginFrame;
 import main.model.User;
 
 import javax.swing.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class UserService {
+
 
     private UserDao userDao = new UserDao();
 
@@ -42,7 +45,13 @@ public class UserService {
             return 3;
         }
 
-        return 4;
+        // 4.如果是管理员
+        if(user.getRole()==0){
+            return 4;
+        }
+
+        // 5. 是普通用户
+        return 5;
     }
 
     /**
@@ -74,11 +83,22 @@ public class UserService {
         }
 
         // 创建用户对象
-        User user = new User(username, password, phone);
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        user.setRole(1);
+        user.setPhone(phone);
+        user.setCreateTime(LocalDateTime.now());
+        user.setBalance(BigDecimal.ZERO);
+
 
         // 插入数据库
         userDao.insertUser(user);
 
         return 4;
+    }
+
+    public User getUserByUsername(String username) {
+        return userDao.findByUsername(username);
     }
 }

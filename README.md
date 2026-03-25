@@ -1,221 +1,201 @@
-# GPU_Renting
-该项目用于完成课程设计
-# GPU租赁管理系统
+# GPU算力租赁与计费后台管理系统
 
-## 📋 项目概述
-基于JavaSE + MySQL的桌面GPU租赁管理系统，提供管理员和用户双端GUI界面。
+## 📖 项目简介
 
-## 🔧 技术栈
-- JavaSE (Swing)
-- MySQL + 原生JDBC
-- Git版本控制
+GPU算力租赁与计费后台管理系统是一款面向中小型实验室、高校教学和本地化部署场景的轻量级GPU资源管理平台。系统采用Java Swing构建图形界面，通过JDBC连接MySQL数据库，实现了用户管理、显卡租赁、服务器管理、计费规则配置、账单统计等核心功能。系统支持租户自助租赁GPU显卡、实时扣费、账单查询，管理员可灵活配置服务器、显卡及定价规则，并提供报表统计功能帮助运营决策。
 
-## 📊 功能模块
+## ✨ 主要功能
 
-| 模块 | 功能描述 |
-|------|----------|
-| **用户管理** | 管理员/租户角色区分，不同角色显示不同界面 |
-| **资源管理** | GPU服务器编号、显卡型号(A100/H100)、显存、状态(空闲/占用/维护) |
-| **租赁申请** | 租户提交申请(显卡型号、数量、时长)，管理员审批 |
-| **使用记录** | 租赁开始/结束时间、实际使用时长记录 |
-| **计费规则** | 按显卡型号设置单价(时/天/月)，支持折扣 |
-| **账单管理** | 自动生成账单、账单状态(待支付/已支付/逾期) |
-| **资源监控** | GPU利用率、温度等模拟监控数据 |
-| **统计报表** | 按GPU型号/租户/时间段统计收入与利用率 |
+### 租户端功能
+- **用户登录与注册**：用户注册、登录认证，账户状态管理
+- **个人主页**：查看个人信息、账户余额，快捷跳转充值/租赁页面
+- **账户充值**：支持微信支付、支付宝、银行卡等多种支付方式
+- **显卡租赁**：浏览可租显卡（型号/显存/单价/状态），按条件筛选，一键租赁
+- **我的租卡**：查看进行中和已结束的租赁记录，手动结束租赁
+- **使用记录**：查看每小时自动扣费明细
+- **账单查询**：查看租用/充值账单，支持按类型/状态筛选，导出CSV文件
 
-## 💾 数据库表设计
+### 管理端功能
+- **用户管理**：查看所有用户信息，启用/禁用账户
+- **显卡管理**：增删改查GPU显卡，修改显卡状态（空闲/维护），已租显卡不可修改
+- **服务器管理**：增删改查GPU服务器，修改服务器状态（在线/维护），支持状态联动（服务器维护时自动同步显卡状态）
+- **计费规则管理**：增删改查定价规则，规则价格变更自动同步所有对应型号显卡价格
+- **报表查询**：收入趋势图表、显卡热度排行、热门租赁排行榜、最近账单列表
 
-### 8张核心表
-- **Users** - 用户表(管理员/租户)
-- **GPUServers** - GPU服务器表  
-- **GPUCards** - 显卡表(关联服务器)
-- **RentalApplications** - 租赁申请表(关联用户、显卡)
-- **UsageRecords** - 使用记录表(关联申请)
-- **PricingRules** - 计费规则表(按显卡型号)
-- **Bills** - 账单表(关联申请、用户)
-- **MonitoringData** - 监控数据表(关联显卡)
+### 技术特色
+- **状态联动**：服务器维护时自动将下辖显卡设为维护，恢复在线时自动恢复空闲
+- **价格同步**：修改计费规则单价时，自动更新所有同型号显卡价格
+- **自定义渲染**：表格表头统一样式，单元格根据状态动态着色（空闲绿/已租红/维护黄）
+- **单例模式**：数据服务层采用单例模式，确保全局唯一实例
 
-### 表关联关系
-```
-GPUServers → GPUCards → RentalApplications → UsageRecords
-                  ↑              ↓
-            MonitoringData       Bills → PricingRules
-```
+## 🛠️ 技术栈
 
-## 🏗️ 项目结构
+| 技术 | 说明 |
+|------|------|
+| Java Swing | 桌面图形界面开发框架 |
+| JDBC | Java数据库连接技术 |
+| MySQL | 关系型数据库 |
+| DAO模式 | 数据访问对象模式 |
+| 单例模式 | 创建型设计模式 |
+| IntelliJ IDEA | 集成开发环境 |
+| Git | 版本控制工具 |
+
+## 📁 项目结构
 
 ```
 gpu-rental-system/
 ├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com.gpurental/
-│   │   │       ├── App.java                    # 入口类(选择管理员/用户端)
-│   │   │       │
-│   │   │       ├── gui/                         # 界面层
-│   │   │       │   ├── admin/                   # 管理员端
-│   │   │       │   │   ├── AdminMainFrame.java
-│   │   │       │   │   ├── ResourcePanel.java   # 资源管理
-│   │   │       │   │   ├── ApprovePanel.java    # 审批管理
-│   │   │       │   │   ├── MonitorPanel.java    # 监控面板
-│   │   │       │   │   └── ReportPanel.java     # 统计报表
-│   │   │       │   └── user/                     # 用户端
-│   │   │       │       ├── UserMainFrame.java
-│   │   │       │       ├── ApplyPanel.java      # 提交申请
-│   │   │       │       ├── MyAppsPanel.java     # 我的申请
-│   │   │       │       └── MyBillsPanel.java    # 我的账单
-│   │   │       │
-│   │   │       ├── service/                      # 业务层(直接供GUI调用)
-│   │   │       │   ├── ResourceService.java     # 资源管理
-│   │   │       │   ├── ApplicationService.java  # 申请审批
-│   │   │       │   ├── BillService.java         # 账单(含事务)
-│   │   │       │   ├── MonitorService.java      # 监控数据
-│   │   │       │   └── ReportService.java       # 统计报表
-│   │   │       │
-│   │   │       ├── dao/                          # 数据访问层
-│   │   │       │   ├── BaseDao.java
-│   │   │       │   ├── UserDao.java
-│   │   │       │   ├── GPUCardDao.java
-│   │   │       │   ├── ApplicationDao.java
-│   │   │       │   ├── BillDao.java
-│   │   │       │   └── ...
-│   │   │       │
-│   │   │       ├── model/                        # 实体类
-│   │   │       │   ├── User.java
-│   │   │       │   ├── GPUCard.java (抽象类)
-│   │   │       │   ├── A100Card.java (子类)
-│   │   │       │   ├── H100Card.java (子类)
-│   │   │       │   ├── Application.java
-│   │   │       │   └── Bill.java
-│   │   │       │
-│   │   │       ├── strategy/                     # 策略模式(计费)
-│   │   │       │   ├── BillingStrategy.java
-│   │   │       │   ├── HourlyBilling.java
-│   │   │       │   ├── DailyBilling.java
-│   │   │       │   └── MonthlyBilling.java
-│   │   │       │
-│   │   │       └── util/                         # 工具类
-│   │   │           ├── DBUtil.java               # 数据库连接
-│   │   │           └── Constants.java            # 常量定义
-│   │   │
-│   │   └── resources/
-│   │       └── db/
-│   │           └── init.sql                       # 建表语句+测试数据
-│   │
-│   └── test/                                      # 测试代码
-│
-├── lib/                                            # 依赖JAR
-│   └── mysql-connector-java-8.x.jar
-│
-├── .gitignore
-└── README.md
-```
-
-## 💡 核心实现要点
-
-### 面向对象设计
-```java
-// 抽象显卡类
-abstract class GPUCard {
-    private int cardId;
-    private String model;
-    private int memory;
-    public abstract double getBasePrice();
-}
-
-// 具体子类
-class A100Card extends GPUCard {
-    public double getBasePrice() { return 2.5; }
-}
-class H100Card extends GPUCard {
-    public double getBasePrice() { return 4.0; }
-}
-```
-
-### 策略模式(计费)
-```java
-interface BillingStrategy {
-    double calculate(double hours, double price);
-}
-
-class HourlyBilling implements BillingStrategy {
-    public double calculate(double hours, double price) {
-        return hours * price;
-    }
-}
-
-class DailyBilling implements BillingStrategy {
-    public double calculate(double hours, double price) {
-        return Math.ceil(hours / 8) * price * 8 * 0.9; // 9折
-    }
-}
-```
-
-### 事务处理(账单生成)
-```java
-public boolean generateBill(int appId) {
-    Connection conn = null;
-    try {
-        conn = DBUtil.getConnection();
-        conn.setAutoCommit(false);
-        
-        // 1. 获取申请信息
-        // 2. 计算费用(策略模式)
-        // 3. 创建账单
-        // 4. 更新使用记录
-        
-        conn.commit();
-        return true;
-    } catch (Exception e) {
-        conn.rollback();
-        return false;
-    }
-}
-```
-
-### 分页查询
-```sql
-SELECT * FROM GPUCards 
-WHERE model LIKE ? AND status = ?
-LIMIT ?, ?;
+│   └── main/
+│       ├── dao/                 # 数据访问层
+│       │   ├── BaseDao.java
+│       │   ├── UserDao.java
+│       │   ├── GpuCardDao.java
+│       │   ├── GpuServerDao.java
+│       │   ├── PricingRuleDao.java
+│       │   ├── RentalApplicationDao.java
+│       │   ├── UsageRecordDao.java
+│       │   ├── RechargeRecordDao.java
+│       │   └── BillDao.java
+│       ├── model/               # 实体类
+│       │   ├── User.java
+│       │   ├── GpuCard.java
+│       │   ├── GpuServer.java
+│       │   ├── PricingRule.java
+│       │   ├── RentalApplication.java
+│       │   ├── UsageRecord.java
+│       │   ├── RechargeRecord.java
+│       │   └── Bill.java
+│       ├── service/             # 业务逻辑层
+│       │   ├── DataService.java
+│       │   └── UserService.java
+│       ├── gui/                 # 界面层
+│       │   ├── Login/           # 登录注册界面
+│       │   ├── admin/           # 管理端界面
+│       │   ├── user/            # 租户端界面
+│       │   └── common/          # 公共组件
+│       └── utils/               # 工具类
+└── sql/                         # 数据库脚本
+    └── init.sql                 # 建表及初始化数据脚本
 ```
 
 ## 🚀 快速开始
 
-### 1. 数据库初始化
+### 环境要求
+- JDK 11 或更高版本
+- MySQL 8.0 或更高版本
+- IntelliJ IDEA（推荐）或其他Java IDE
+
+### 安装步骤
+
+1. **克隆项目**
 ```bash
-mysql -u root -p < src/resources/db/init.sql
+git clone https://github.com/your-username/gpu-rental-system.git
+cd gpu-rental-system
 ```
 
-### 2. 配置连接
-修改 `DBUtil.java` 中的数据库连接参数
-
-### 3. 运行程序
-运行 `App.java`，选择进入管理员端或用户端
-
-### 4. 预置测试账号
-```
-管理员: admin / 123456
-租户:   zhangsan / 123456
-        lisi / 123456
+2. **创建数据库**
+```sql
+CREATE DATABASE gpu_rental DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-## 📁 Git管理
+3. **执行初始化脚本**
 ```bash
-git init
-echo "*.class" >> .gitignore
-echo "lib/" >> .gitignore
-git add .
-git commit -m "Initial commit"
+mysql -u root -p gpu_rental < sql/init.sql
 ```
 
-## ✅ 满足的要求
-- [x] 8张数据库表，多表关联
-- [x] Swing GUI界面
-- [x] 原生JDBC操作
-- [x] 事务处理(账单生成)
-- [x] 策略模式计费
-- [x] 分页查询
-- [x] 面向对象设计(显卡子类)
-- [x] 预置测试数据
-- [x] Git版本控制
+4. **配置数据库连接**
+修改 `src/main/dao/BaseDao.java` 中的数据库连接信息：
+```java
+private static final String DB_URL = "jdbc:mysql://localhost:3306/gpu_rental?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+private static final String DB_USER = "root";
+private static final String DB_PASSWORD = "your_password";
+```
+
+5. **运行项目**
+在IDE中运行 `main.gui.Login.LoginFrame` 类
+
+### 默认账号
+| 角色 | 用户名 | 密码 |
+|------|--------|------|
+| 管理员 | admin | admin123 |
+| 租户 | 张三 | 123456 |
+| 租户 | 李四 | 123456 |
+
+## 📊 数据库设计
+
+系统共包含8张核心数据表：
+
+| 表名 | 说明 |
+|------|------|
+| User | 用户表（管理员/租户） |
+| gpu_server | GPU服务器表 |
+| gpu_card | GPU卡表 |
+| pricing_rule | 定价规则表 |
+| rental_record | 租用记录表 |
+| usage_record | 使用记录表 |
+| recharge_record | 充值记录表 |
+| bill | 账单表 |
+
+详细表结构请查看 `sql/init.sql` 文件。
+
+## 🎯 核心业务逻辑
+
+### 租赁流程
+1. 用户选中空闲显卡，点击“开始租赁”
+2. 系统检查用户余额是否充足（至少支付1小时）
+3. 创建租用记录，显卡状态变为“已租”
+4. 系统每小时自动扣费，生成使用记录
+5. 用户可随时手动结束租赁，系统计算最终费用
+
+### 状态联动
+- 服务器改为“维护”时：自动将其下所有显卡状态设为“维护”，若存在已租显卡则禁止修改
+- 服务器从“维护”改为“在线”时：自动将其下所有显卡状态恢复为“空闲”
+- 已租显卡不可修改状态、不可删除
+
+### 价格同步
+- 修改计费规则单价时，自动更新所有同型号显卡的价格
+- 添加显卡时，价格根据计费规则自动获取
+
+## 🧪 测试账号
+
+| 用户名 | 密码 | 角色 | 说明 |
+|--------|------|------|------|
+| admin | admin123 | 管理员 | 拥有所有管理权限 |
+| 张三 | 123456 | 租户 | 余额1250元，有进行中租用 |
+| 李四 | 123456 | 租户 | 余额580.5元，有进行中租用 |
+| 王五 | 123456 | 租户 | 余额2100元，有进行中租用 |
+| 小明 | 123456 | 租户 | 余额890元，有进行中租用 |
+| 小刚 | 123456 | 租户 | 余额450元，有进行中租用 |
+| 小丽 | 123456 | 租户 | 余额0元，账户已禁用 |
+| 测试用户 | 123456 | 租户 | 余额100元，无租用记录 |
+
+## 📸 界面预览
+
+### 登录界面
+用户登录与注册入口，支持管理员和租户两种角色登录。
+
+### 租户端主界面
+- **显卡租赁**：浏览可租显卡，发起租赁
+- **我的租卡**：查看租赁记录，结束租赁
+- **使用记录**：查看扣费明细
+- **账单查询**：查看租用/充值账单，导出数据
+- **个人主页**：查看个人信息，快捷跳转
+
+### 管理端主界面
+- **用户管理**：启用/禁用用户账户
+- **显卡管理**：增删改查显卡，修改状态
+- **服务器管理**：增删改查服务器，状态联动
+- **计费规则管理**：配置各型号单价，价格联动
+- **报表查询**：收入趋势图表、热度排行
+
+## 📝 开发总结
+
+本系统采用经典的三层架构（界面层-业务逻辑层-数据访问层），实现了前后端分离的设计思想。通过DAO模式隔离数据库操作，通过单例模式管理核心服务，通过自定义渲染器统一界面风格。系统实现了服务器与显卡的状态联动、计费规则与显卡价格的价格同步等特色功能，代码结构清晰，模块间耦合度低，便于后续扩展和维护。
+
+## 📄 许可证
+
+本项目仅供学习和研究使用。
+
+---
+
+**⭐ 如果这个项目对您有帮助，欢迎Star支持！**

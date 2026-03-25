@@ -229,6 +229,9 @@ public class LoginFrame extends JFrame {
     /**
      * 登录事件处理器（独立类，解耦）
      */
+    /**
+     * 登录事件处理器（独立类，解耦）
+     */
     private class LoginActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -236,74 +239,86 @@ public class LoginFrame extends JFrame {
             String username = tfLoginUsername.getText().trim();
             String password = new String(pfLoginPassword.getPassword()).trim();
 
-            System.out.println("username:"+username);
-            System.out.println("password:"+password);
-            System.out.println("login success!");
+            System.out.println("username:" + username);
+            System.out.println("password:" + password);
 
-            //调用Service层去查询账号密码对应的状态
+            // 调用Service层去查询账号密码对应的状态
             UserService userService = new UserService();
-            int status=userService.login(username, password);
+            int status = userService.login(username, password);
 
             /*
-             * 1.空值
-             * 2.用户名不存在
-             * 3.密码错误
-             * 4.登录成功
-             * */
+             * 返回值说明：
+             * 1. 空值
+             * 2. 用户名不存在
+             * 3. 密码错误
+             * 4. 登录成功（管理员）
+             * 5. 登录成功（普通用户）
+             * 6. 账户已被禁用
+             */
 
             // 1. 空值校验
-            if (status==1) {
+            if (status == 1) {
                 JOptionPane.showMessageDialog(LoginFrame.this,
-                        "用户名或密码为空！", "错误", JOptionPane.ERROR_MESSAGE);
+                        "用户名或密码不能为空！", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // 2. 用户名存在性校验
-            if (status==2) {
+            // 2. 用户名不存在
+            if (status == 2) {
                 JOptionPane.showMessageDialog(LoginFrame.this,
                         "用户名不存在！", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // 3. 密码正确性校验
-            if (status==3) {
+            // 3. 密码错误
+            if (status == 3) {
                 JOptionPane.showMessageDialog(LoginFrame.this,
                         "密码错误！", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // 4.登录成功
-            if (status==4) {
+            // 6. 账户已被禁用
+            if (status == 6) {
+                JOptionPane.showMessageDialog(LoginFrame.this,
+                        "账户已被禁用，请联系管理员！", "错误", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 4. 登录成功（管理员）
+            if (status == 4) {
                 JOptionPane.showMessageDialog(LoginFrame.this,
                         "登录成功！欢迎管理员使用GPU租赁系统，" + username,
                         "成功", JOptionPane.INFORMATION_MESSAGE);
+
                 // 清空登录表单
                 tfLoginUsername.setText("");
                 pfLoginPassword.setText("");
 
-                // 登录成功后跳转到主界面
+                // 登录成功后跳转到管理员主界面
                 dispose(); // 关闭登录窗口
-                new AdminMainFrame(username).setVisible(true);; // 打开管理员主界面
+                new AdminMainFrame(username).setVisible(true);
                 return;
             }
 
+            // 5. 登录成功（普通用户）
+            if (status == 5) {
+                JOptionPane.showMessageDialog(LoginFrame.this,
+                        "登录成功！欢迎使用GPU租赁系统，" + username,
+                        "成功", JOptionPane.INFORMATION_MESSAGE);
+
+                // 清空登录表单
+                tfLoginUsername.setText("");
+                pfLoginPassword.setText("");
+
+                // 登录成功后跳转到用户主界面
+                dispose(); // 关闭登录窗口
+                new UserMainFrame(username).setVisible(true);
+                return;
+            }
+
+            // 其他情况（兜底）
             JOptionPane.showMessageDialog(LoginFrame.this,
-                    "登录成功！欢迎用户使用GPU租赁系统，" + username,
-                    "成功", JOptionPane.INFORMATION_MESSAGE);
-
-            // 清空登录表单
-            tfLoginUsername.setText("");
-            pfLoginPassword.setText("");
-
-            // 登录成功后跳转到主界面
-            dispose(); // 关闭登录窗口
-
-            new UserMainFrame(username).setVisible(true); // 打开用户主界面
-
-            JOptionPane.showMessageDialog(LoginFrame.this,
-                    "登录成功！欢迎管理员使用GPU租赁系统，" + username,
-                    "成功", JOptionPane.INFORMATION_MESSAGE);
-
+                    "登录失败，请重试！", "错误", JOptionPane.ERROR_MESSAGE);
         }
     }
 

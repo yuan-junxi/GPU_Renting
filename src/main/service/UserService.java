@@ -19,39 +19,36 @@ public class UserService {
      * @return User对象（登录成功）, null（失败）
      */
     public int login(String username, String password) {
-        /*
-        * 1.空值
-        * 2.用户名不存在
-        * 3.密码错误
-        * 4.登录成功
-        * */
-
-        // 1.空值验证
+        // 1. 空值校验
         if (username == null || username.trim().isEmpty() ||
                 password == null || password.trim().isEmpty()) {
             return 1;
         }
 
-        // 2.用户名不存在
-        if (!userDao.isUsernameExists(username)) {
-            System.out.println(username + " already exists");
+        // 2. 查询用户
+        User user = userDao.findByUsername(username);
+
+        // 3. 用户名不存在
+        if (user == null) {
             return 2;
         }
 
-        User user=userDao.findByUsername(username);
-
-        // 3.密码错误
-        if (!user.getPassword().equals(password)) {
+        // 4. 密码错误（这里假设密码明文存储，实际应用应加密比对）
+        if (!password.equals(user.getPassword())) {
             return 3;
         }
 
-        // 4.如果是管理员
-        if(user.getRole()==0){
-            return 4;
+        // 5. 检查账户状态
+        if ("disabled".equals(user.getStatus())) {
+            return 6;  // 账户已被禁用
         }
 
-        // 5. 是普通用户
-        return 5;
+        // 6. 根据角色返回不同值
+        if (user.getRole() == 0) {
+            return 4;  // 管理员登录成功
+        } else {
+            return 5;  // 普通用户登录成功
+        }
     }
 
     /**
